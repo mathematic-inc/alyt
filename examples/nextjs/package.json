@@ -11,7 +11,7 @@
     "@alyt/react": "latest",
     "next": ">=16.3.3",
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=19"
   },
   "devDependencies": {
     "@alyt/codegen": "latest"
