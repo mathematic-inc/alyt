@@ -12,6 +12,7 @@ packageExtensions:
 overrides:
   vite: 8.2.2
   "@sveltejs/kit>cookie": ^0.7.2
+  sharp: 0.35.4
 
 allowBuilds:
   core-js: false
