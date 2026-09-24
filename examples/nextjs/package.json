@@ -9,7 +9,7 @@
     "@alyt/core": "latest",
     "@alyt/plugin-ga": "latest",
     "@alyt/react": "latest",
-    "next": ">=16.3.3",
+    "next": ">=16.3.5",
     "react": ">=18",
     "react-dom": ">=18"
   },
