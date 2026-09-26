@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "next build",
     "generate": "alyt-codegen --schema analytics.schema.yaml --out lib/generated"
   },
   "dependencies": {
@@ -10,10 +11,13 @@
     "@alyt/plugin-ga": "latest",
     "@alyt/react": "latest",
     "next": ">=16.3.5",
-    "react": ">=18",
-    "react-dom": ">=18"
+    "react": ">=19.3.0",
+    "react-dom": ">=19.3.0"
   },
   "devDependencies": {
-    "@alyt/codegen": "latest"
+    "@alyt/codegen": "latest",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "typescript": "^7.0.2"
   }
 }

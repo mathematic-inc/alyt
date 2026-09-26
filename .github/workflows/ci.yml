@@ -39,3 +39,11 @@ jobs:
         run: pnpm test
       - name: Audit dependencies
         run: pnpm audit
+      - name: Build Next.js example
+        working-directory: examples/nextjs
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+      - name: Audit Next.js example
+        working-directory: examples/nextjs
+        run: npm audit --audit-level high
