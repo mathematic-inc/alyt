@@ -1,14 +1,10 @@
-import { GAScript } from "@alyt/plugin-ga/react";
-import { AnalyticsProvider } from "@alyt/react";
-
-import { analytics } from "../lib/analytics";
+import { Providers } from "./providers";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <GAScript measurementId="G-XXXXXXXXXX" />
-        <AnalyticsProvider client={analytics}>{children}</AnalyticsProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
