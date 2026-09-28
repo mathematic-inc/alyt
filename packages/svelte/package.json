@@ -33,7 +33,7 @@
   "scripts": {
     "build": "svelte-package -i src -o build",
     "test": "vitest run",
-    "typecheck": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings"
+    "typecheck": "svelte-check --tsgo --tsconfig ./tsconfig.json --fail-on-warnings"
   },
   "dependencies": {
     "@alyt/core": "workspace:*"
@@ -41,6 +41,7 @@
   "devDependencies": {
     "@sveltejs/package": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@typescript/native": "npm:typescript@7.0.2",
     "jsdom": "^30.0.1",
     "svelte": "^5.57.0",
     "svelte-check": "^4.7.6",
