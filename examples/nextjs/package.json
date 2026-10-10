@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@alyt/codegen": "latest",
-    "@types/react": "^19.2.18",
+    "@types/react": "^19.3.0",
     "@types/react-dom": "^19.2.5",
     "typescript": "^7.0.2"
   }
