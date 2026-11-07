@@ -30,3 +30,11 @@ minimumReleaseAgeExclude:
   - "@amplitude/plugin-page-view-tracking-browser@2.12.1"
   - "@amplitude/plugin-web-vitals-browser@1.2.9"
   - mixpanel-browser@2.85.0
+
+patchedDependencies:
+  deepmerge@4.3.1: patches/deepmerge@4.3.1.patch
+
+audit:
+  # Fixed locally by patches/deepmerge@4.3.1.patch; tools/deepmerge.test.mjs verifies both inputs.
+  ignore:
+    - GHSA-gcqx-w48m-w2h4

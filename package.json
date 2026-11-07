@@ -22,7 +22,7 @@
     "format": "oxfmt --write .",
     "lint": "oxlint --deny-warnings .",
     "prepare": "node -e \"const { spawnSync } = require('node:child_process'); const options = { shell: process.platform === 'win32', stdio: 'ignore' }; if (spawnSync('hk', ['--version'], options).status === 0) process.exit(spawnSync('hk', ['install'], { ...options, stdio: 'inherit' }).status ?? 1)\"",
-    "test": "turbo run test",
+    "test": "node --test tools/*.test.mjs && turbo run test",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
