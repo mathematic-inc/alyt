@@ -4,19 +4,13 @@ packages:
 
 autoInstallPeers: false
 
-packageExtensions:
-  "@sveltejs/package@2.5.8":
-    peerDependencies:
-      typescript: "^5.0.0 || ^6.0.0"
-
 overrides:
-  next: 16.3.8
+  next: 16.4.5
   source-map-js: 1.2.2
-  devalue: 5.9.3
-  dompurify: 3.4.16
-  undici: 8.10.2
-  vite: 8.2.2
-  "@sveltejs/kit>cookie": ^0.7.2
+  devalue: 6.0.3
+  dompurify: 3.4.17
+  undici: 8.12.4
+  vite: 8.3.6
   sharp: 0.35.5
 
 allowBuilds:
@@ -25,4 +19,22 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - "@posthog/types@1.407.0"
   - "@types/node@26.4.0"
-  - posthog-js@1.421.0
+  - posthog-js@1.421.0 || 1.447.3
+  - "@amplitude/analytics-browser@2.49.2"
+  - "@amplitude/analytics-core@2.62.1"
+  - "@amplitude/element-selector@0.3.3"
+  - "@amplitude/plugin-autocapture-browser@1.31.2"
+  - "@amplitude/plugin-event-property-attribution-browser@0.2.26"
+  - "@amplitude/plugin-network-capture-browser@1.11.1"
+  - "@amplitude/plugin-page-url-enrichment-browser@0.7.36"
+  - "@amplitude/plugin-page-view-tracking-browser@2.12.1"
+  - "@amplitude/plugin-web-vitals-browser@1.2.9"
+  - mixpanel-browser@2.85.0
+
+patchedDependencies:
+  deepmerge@4.3.1: patches/deepmerge@4.3.1.patch
+
+audit:
+  # Fixed locally by patches/deepmerge@4.3.1.patch; tools/deepmerge.test.mjs verifies both inputs.
+  ignore:
+    - GHSA-gcqx-w48m-w2h4
