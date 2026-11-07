@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/mathematic-inc/alyt/compare/codegen-v0.1.5...codegen-v0.1.6) (2026-11-07)
+
+
+### Bug Fixes
+
+* **deps:** Update dependencies across the stack ([#85](https://github.com/mathematic-inc/alyt/issues/85)) ([c0e9039](https://github.com/mathematic-inc/alyt/commit/c0e9039d8d022fa2c17f3ad94715c595183f867c))
+
 ## [0.1.5](https://github.com/mathematic-inc/alyt/compare/codegen-v0.1.4...codegen-v0.1.5) (2026-08-27)
 
 
