@@ -172,7 +172,7 @@ overrides:
   sharp: 0.35.5
 
 patchedDependencies:
-  deepmerge@4.3.1: ccfe1dd9e4e169da30f42d99fa5916753515080bc3cd471b91cc9f318ca294ae
+  deepmerge@4.3.1: 9c7b1f5af1e1ba52c480a5830ab4a5c4803801881fac311a1f4eadbcbfdb194d
 
 importers:
 
@@ -2243,7 +2243,7 @@ snapshots:
 
   '@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3)(vite@8.3.6(@types/node@26.6.6)(yaml@2.9.1))':
     dependencies:
-      deepmerge: 4.3.1(patch_hash=ccfe1dd9e4e169da30f42d99fa5916753515080bc3cd471b91cc9f318ca294ae)
+      deepmerge: 4.3.1(patch_hash=9c7b1f5af1e1ba52c480a5830ab4a5c4803801881fac311a1f4eadbcbfdb194d)
       magic-string: 1.4.5
       obug: 2.2.1
       svelte: 5.57.3
@@ -2467,7 +2467,7 @@ snapshots:
 
   dedent-js@1.0.1: {}
 
-  deepmerge@4.3.1(patch_hash=ccfe1dd9e4e169da30f42d99fa5916753515080bc3cd471b91cc9f318ca294ae): {}
+  deepmerge@4.3.1(patch_hash=9c7b1f5af1e1ba52c480a5830ab4a5c4803801881fac311a1f4eadbcbfdb194d): {}
 
   dequal@2.0.3: {}
 
