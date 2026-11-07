@@ -2,7 +2,7 @@
   import type { AnalyticsPlugin } from "@alyt/core";
   import { getAnalytics } from "@alyt/svelte";
 
-  import { createTracker } from "$lib/generated/tracker.js";
+  import { createTracker } from "#lib/generated/tracker.js";
 
   const client = getAnalytics();
   const tracker = createTracker(client);

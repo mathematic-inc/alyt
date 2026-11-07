@@ -30,13 +30,13 @@
     "@alyt/core": "workspace:*"
   },
   "devDependencies": {
-    "@amplitude/analytics-browser": "^2.45.7",
-    "@types/react": "19.2.18",
-    "next": "16.3.8",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
+    "@amplitude/analytics-browser": "^2.49.2",
+    "@types/react": "19.3.0",
+    "next": "16.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "typescript": "7.0.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.1.0"
   },
   "peerDependencies": {
     "@amplitude/analytics-browser": ">=2",

@@ -2,6 +2,10 @@
   "name": "@alyt/example-sveltekit",
   "private": true,
   "type": "module",
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite dev",
@@ -15,13 +19,13 @@
   },
   "devDependencies": {
     "@alyt/codegen": "workspace:*",
-    "@sveltejs/adapter-auto": "^7.0.1",
-    "@sveltejs/kit": "^2.70.3",
-    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@sveltejs/adapter-auto": "^8.0.0",
+    "@sveltejs/kit": "^3.1.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@typescript/native": "npm:typescript@7.0.2",
-    "svelte": "^5.57.0",
-    "svelte-check": "^4.7.6",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.8",
     "typescript": "6.0.3",
-    "vite": "^8.2.2"
+    "vite": "^8.3.6"
   }
 }
