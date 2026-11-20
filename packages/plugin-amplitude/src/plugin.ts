@@ -1,20 +1,27 @@
 import type { AnalyticsPlugin } from "@alyt/core";
 import type { AmplitudeBrowser } from "@amplitude/analytics-browser";
 
+export interface AmplitudeClient {
+  readonly reset: AmplitudeBrowser["reset"];
+  readonly setUserId: AmplitudeBrowser["setUserId"];
+  readonly track: AmplitudeBrowser["track"];
+}
+
 export interface AmplitudeOptions {
-  apiKey: string;
-  client?: AmplitudeBrowser;
+  readonly apiKey: string;
+  readonly client?: AmplitudeClient;
 }
 
 export function amplitude(options: AmplitudeOptions): AnalyticsPlugin {
-  function getAmplitude(): AmplitudeBrowser | null {
+  function getAmplitude(): AmplitudeClient | null {
     if (options.client) {
       return options.client;
     }
-    if (typeof window !== "undefined" && "amplitude" in window) {
-      return (window as Record<string, unknown>).amplitude as AmplitudeBrowser;
+    if (typeof window === "undefined") {
+      return null;
     }
-    return null;
+    const { amplitude: client }: Window & { amplitude?: AmplitudeClient } = window;
+    return client ?? null;
   }
 
   return {

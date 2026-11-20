@@ -1,7 +1,7 @@
 import Script from "next/script";
 
 interface AmplitudeScriptProps {
-  apiKey: string;
+  readonly apiKey: string;
 }
 
 export function AmplitudeScript({ apiKey }: AmplitudeScriptProps) {

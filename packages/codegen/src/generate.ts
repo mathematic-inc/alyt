@@ -1,39 +1,39 @@
 export interface SchemaParamDefinition {
-  hash?: boolean;
-  type: string;
+  readonly hash?: boolean;
+  readonly type: string;
 }
 
 export type SchemaParam = SchemaParamDefinition | string;
 
 export interface SchemaEvent {
-  description?: string;
-  params?: Record<string, SchemaParam>;
+  readonly description?: string;
+  readonly params?: Readonly<Record<string, SchemaParam>>;
 }
 
 export interface Schema {
-  events: Record<string, SchemaEvent>;
+  readonly events: Readonly<Record<string, SchemaEvent>>;
 }
 
 interface TrackerMethod {
-  event: SchemaEvent;
-  name: string;
-  type: "method";
+  readonly event: SchemaEvent;
+  readonly name: string;
+  readonly type: "method";
 }
 
 interface TrackerNamespace {
-  children: Map<string, TrackerEntry>;
-  type: "namespace";
+  readonly children: ReadonlyMap<string, TrackerEntry>;
+  readonly type: "namespace";
 }
 
 type TrackerEntry = TrackerMethod | TrackerNamespace;
 
-const identifierPattern = /^[A-Za-z_$][\w$]*$/u;
+const identifierPattern = /^[A-Za-z_$][\w$]*$/v;
 const paramDefinitionFields = new Set(["hash", "type"]);
 
 interface NormalizedParam {
-  hash: boolean;
-  name: string;
-  type: string;
+  readonly hash: boolean;
+  readonly name: string;
+  readonly type: string;
 }
 
 function propertyKey(s: string): string {
@@ -42,7 +42,7 @@ function propertyKey(s: string): string {
 
 function nameToPascal(s: string): string {
   return s
-    .split(/[^A-Za-z0-9_$]+|_/u)
+    .split(/[^A-Za-z0-9_$]+|_/v)
     .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join("");
@@ -56,6 +56,10 @@ function nameToCamel(s: string): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function isSchema(value: unknown): value is Schema {
+  return isRecord(value) && isRecord(value.events);
 }
 
 function normalizeParam(eventName: string, paramName: string, param: SchemaParam): NormalizedParam {
@@ -103,17 +107,22 @@ function normalizeParam(eventName: string, paramName: string, param: SchemaParam
 
 function normalizeParams(
   eventName: string,
-  params?: Record<string, SchemaParam>,
+  params?: Readonly<Record<string, SchemaParam>>,
 ): NormalizedParam[] {
-  return Object.entries(params ?? {}).map(([name, param]) =>
-    normalizeParam(eventName, name, param),
-  );
+  const normalized: NormalizedParam[] = [];
+  for (const [name, param] of Object.entries(params ?? {})) {
+    normalized.push(normalizeParam(eventName, name, param));
+  }
+  return normalized;
 }
 
 function schemaUsesHash(schema: Schema): boolean {
-  return Object.entries(schema.events).some(([name, event]) =>
-    normalizeParams(name, event?.params).some((param) => param.hash),
-  );
+  for (const [name, event] of Object.entries(schema.events)) {
+    if (normalizeParams(name, event?.params).some((param) => param.hash)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function trackerPath(name: string): string[] {
@@ -131,53 +140,42 @@ function createTrackerNamespace(): TrackerNamespace {
   };
 }
 
-function insertTrackerEvent(root: TrackerNamespace, name: string, event: SchemaEvent): void {
-  const path = trackerPath(name);
-  let namespace = root;
+function withTrackerEvent(
+  namespace: TrackerNamespace,
+  path: readonly string[],
+  name: string,
+  event: SchemaEvent,
+  index = 0,
+): TrackerNamespace {
+  const key = path[index] ?? "";
+  const existing = namespace.children.get(key);
+  const conflict = new Error(`Event name "${name}" conflicts at tracker path "${path.join(".")}"`);
+  let entry: TrackerEntry;
 
-  for (const [index, key] of path.entries()) {
-    const isMethod = index === path.length - 1;
-    const existing = namespace.children.get(key);
-
-    if (isMethod) {
-      if (existing) {
-        throw new Error(`Event name "${name}" conflicts at tracker path "${path.join(".")}"`);
-      }
-      namespace.children.set(key, {
-        event,
-        name,
-        type: "method",
-      });
-      return;
-    }
-
-    if (existing?.type === "method") {
-      throw new Error(`Event name "${name}" conflicts at tracker path "${path.join(".")}"`);
-    }
-
+  if (index === path.length - 1) {
     if (existing) {
-      namespace = existing;
-      continue;
+      throw conflict;
     }
-
-    const child = createTrackerNamespace();
-    namespace.children.set(key, child);
-    namespace = child;
+    entry = { event, name, type: "method" };
+  } else {
+    if (existing?.type === "method") {
+      throw conflict;
+    }
+    entry = withTrackerEvent(existing ?? createTrackerNamespace(), path, name, event, index + 1);
   }
+
+  return { children: new Map([...namespace.children, [key, entry]]), type: "namespace" };
 }
 
-function emitTrackerMethod(
-  lines: string[],
-  key: string,
-  method: TrackerMethod,
-  level: number,
-): void {
+function emitTrackerMethod(key: string, method: TrackerMethod, level: number): string[] {
   const indent = "\t".repeat(level);
   const params = normalizeParams(method.name, method.event?.params);
   const usesHash = params.some((param) => param.hash);
+  const lines: string[] = [];
 
-  if (method.event?.description) {
-    lines.push(`${indent}/** ${method.event.description} */`);
+  const description = method.event?.description;
+  if (typeof description === "string" && description !== "") {
+    lines.push(`${indent}/** ${description} */`);
   }
   if (params.length > 0) {
     const args = params.map((param) => `${nameToCamel(param.name)}: ${param.type}`).join(", ");
@@ -200,20 +198,21 @@ function emitTrackerMethod(
       `${indent}},`,
     );
   }
+  return lines;
 }
 
-function emitTrackerEntry(lines: string[], key: string, entry: TrackerEntry, level: number): void {
+function emitTrackerEntry(key: string, entry: TrackerEntry, level: number): string[] {
   const indent = "\t".repeat(level);
   if (entry.type === "method") {
-    emitTrackerMethod(lines, key, entry, level);
-    return;
+    return emitTrackerMethod(key, entry, level);
   }
 
-  lines.push(`${indent}${propertyKey(key)}: {`);
+  const lines = [`${indent}${propertyKey(key)}: {`];
   for (const [childKey, child] of entry.children) {
-    emitTrackerEntry(lines, childKey, child, level + 1);
+    lines.push(...emitTrackerEntry(childKey, child, level + 1));
   }
   lines.push(`${indent}},`);
+  return lines;
 }
 
 export function generateTypes(schema: Schema): string {
@@ -226,8 +225,9 @@ export function generateTypes(schema: Schema): string {
     "export interface AnalyticsEventMap {",
   );
   for (const [name, def] of Object.entries(schema.events)) {
-    if (def?.description) {
-      lines.push(`\t/** ${def.description} */`);
+    const description = def?.description;
+    if (typeof description === "string" && description !== "") {
+      lines.push(`\t/** ${description} */`);
     }
     const params = normalizeParams(name, def?.params);
     if (params.length > 0) {
@@ -244,9 +244,9 @@ export function generateTypes(schema: Schema): string {
 
 export function generateTracker(schema: Schema): string {
   const usesHash = schemaUsesHash(schema);
-  const root = createTrackerNamespace();
+  let root = createTrackerNamespace();
   for (const [name, def] of Object.entries(schema.events)) {
-    insertTrackerEvent(root, name, def);
+    root = withTrackerEvent(root, trackerPath(name), name, def);
   }
 
   const lines: string[] = [
@@ -259,7 +259,7 @@ export function generateTracker(schema: Schema): string {
   ];
 
   for (const [key, entry] of root.children) {
-    emitTrackerEntry(lines, key, entry, 2);
+    lines.push(...emitTrackerEntry(key, entry, 2));
   }
 
   lines.push("\t};", "}", "");

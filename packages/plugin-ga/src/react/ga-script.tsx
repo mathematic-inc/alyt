@@ -3,13 +3,13 @@ import Script from "next/script";
 declare const process: { env: Record<string, string | undefined> };
 
 interface GAScriptProps {
-  measurementId?: string;
+  readonly measurementId?: string;
 }
 
 export function GAScript({ measurementId }: GAScriptProps) {
   const id = measurementId ?? process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-  if (!id) {
+  if (id === undefined || id === "") {
     return null;
   }
 

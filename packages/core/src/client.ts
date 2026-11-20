@@ -5,9 +5,8 @@ export function createAnalytics(options?: AnalyticsOptions): AnalyticsClient {
 
   return {
     track(event, params, trackOptions) {
-      const targets = trackOptions?.only
-        ? plugins.filter((p) => trackOptions.only?.includes(p.name))
-        : plugins;
+      const only = trackOptions?.only;
+      const targets = only === undefined ? plugins : plugins.filter((p) => only.includes(p.name));
       for (const p of targets) {
         p.track(event, params);
       }

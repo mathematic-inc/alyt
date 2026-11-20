@@ -1,24 +1,28 @@
 export interface AnalyticsPlugin {
-  identify?(userId: string, traits?: Record<string, unknown>): void;
-  name: string;
-  page?(name?: string, params?: Record<string, unknown>): void;
-  reset?(): void;
-  track(event: string, params?: Record<string, unknown>): void;
+  readonly identify?: (userId: string, traits?: Readonly<Record<string, unknown>>) => void;
+  readonly name: string;
+  readonly page?: (name?: string, params?: Readonly<Record<string, unknown>>) => void;
+  readonly reset?: () => void;
+  readonly track: (event: string, params?: Readonly<Record<string, unknown>>) => void;
 }
 
 export interface TrackOptions {
-  only?: string[];
+  readonly only?: readonly string[];
 }
 
 export interface AnalyticsClient {
-  addPlugin(plugin: AnalyticsPlugin): void;
-  identify(userId: string, traits?: Record<string, unknown>): void;
-  page(name?: string, params?: Record<string, unknown>): void;
-  removePlugin(name: string): void;
-  reset(): void;
-  track(event: string, params?: Record<string, unknown>, options?: TrackOptions): void;
+  readonly addPlugin: (plugin: AnalyticsPlugin) => void;
+  readonly identify: (userId: string, traits?: Readonly<Record<string, unknown>>) => void;
+  readonly page: (name?: string, params?: Readonly<Record<string, unknown>>) => void;
+  readonly removePlugin: (name: string) => void;
+  readonly reset: () => void;
+  readonly track: (
+    event: string,
+    params?: Readonly<Record<string, unknown>>,
+    options?: TrackOptions,
+  ) => void;
 }
 
 export interface AnalyticsOptions {
-  plugins?: AnalyticsPlugin[];
+  readonly plugins?: readonly AnalyticsPlugin[];
 }

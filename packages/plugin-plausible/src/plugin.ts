@@ -2,13 +2,13 @@ import type { AnalyticsPlugin } from "@alyt/core";
 
 export type PlausibleClient = (
   event: string,
-  options?: { props?: Record<string, unknown> },
+  options?: { readonly props?: Readonly<Record<string, unknown>> },
 ) => void;
 
 export interface PlausibleOptions {
-  apiHost?: string;
-  client?: PlausibleClient;
-  domain: string;
+  readonly apiHost?: string;
+  readonly client?: PlausibleClient;
+  readonly domain: string;
 }
 
 export function plausible(options: PlausibleOptions): AnalyticsPlugin {
@@ -16,10 +16,11 @@ export function plausible(options: PlausibleOptions): AnalyticsPlugin {
     if (options.client) {
       return options.client;
     }
-    if (typeof window !== "undefined" && "plausible" in window) {
-      return (window as Record<string, unknown>).plausible as PlausibleClient;
+    if (typeof window === "undefined") {
+      return null;
     }
-    return null;
+    const { plausible: client }: Window & { plausible?: PlausibleClient } = window;
+    return client ?? null;
   }
 
   return {

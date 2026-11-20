@@ -1,7 +1,7 @@
 import Script from "next/script";
 
 interface MixpanelScriptProps {
-  token: string;
+  readonly token: string;
 }
 
 export function MixpanelScript({ token }: MixpanelScriptProps) {

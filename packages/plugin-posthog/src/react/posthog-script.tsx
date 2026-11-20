@@ -1,8 +1,8 @@
 import Script from "next/script";
 
 interface PostHogScriptProps {
-  apiHost?: string;
-  apiKey: string;
+  readonly apiHost?: string;
+  readonly apiKey: string;
 }
 
 export function PostHogScript({
