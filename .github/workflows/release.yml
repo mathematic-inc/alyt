@@ -13,7 +13,7 @@ concurrency:
 permissions: {}
 
 jobs:
-  meta:
+  validate-release:
     name: Validate release
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -25,10 +25,12 @@ jobs:
       package_path: ${{ steps.parse.outputs.package_path }}
       package_name: ${{ steps.parse.outputs.package_name }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - id: parse
+      - name: Validate tag and package version
+        id: parse
         shell: bash
         run: |
           set -euo pipefail
@@ -68,67 +70,83 @@ jobs:
 
   build-and-test:
     name: Build and test
+    needs:
+      - validate-release
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: meta
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: Install pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - name: Install Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
           package-manager-cache: false
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter "${PACKAGE_NAME}..." run build
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build package
+        run: pnpm --filter "${PACKAGE_NAME}..." run build
         env:
-          PACKAGE_NAME: ${{ needs.meta.outputs.package_name }}
-      - run: pnpm --filter "${PACKAGE_NAME}..." run test
+          PACKAGE_NAME: ${{ needs.validate-release.outputs.package_name }}
+      - name: Run tests
+        run: pnpm --filter "${PACKAGE_NAME}..." run test
         env:
-          PACKAGE_NAME: ${{ needs.meta.outputs.package_name }}
+          PACKAGE_NAME: ${{ needs.validate-release.outputs.package_name }}
       - name: Upload build output
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: build-output
-          path: ${{ needs.meta.outputs.package_path }}/build
+          path: ${{ needs.validate-release.outputs.package_path }}/build
 
-  publish:
+  publish-npm:
     name: Publish to npm
+    needs:
+      - validate-release
+      - build-and-test
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [meta, build-and-test]
     environment: release
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - name: Install pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - name: Install Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Restore build output
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: build-output
-          path: ${{ needs.meta.outputs.package_path }}/build
-      - run: pnpm --filter "./${PACKAGE_PATH}" publish --access public --no-git-checks --provenance
+          path: ${{ needs.validate-release.outputs.package_path }}/build
+      - name: Publish to npm
+        run: pnpm --filter "./${PACKAGE_PATH}" publish --access public --no-git-checks --provenance
         env:
-          PACKAGE_PATH: ${{ needs.meta.outputs.package_path }}
+          PACKAGE_PATH: ${{ needs.validate-release.outputs.package_path }}
 
   create-release:
     name: Create GitHub release
+    needs:
+      - validate-release
+      - publish-npm
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [meta, publish]
     environment: release
     permissions:
       contents: write
@@ -137,9 +155,9 @@ jobs:
         env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ github.token }}
-          IS_PRERELEASE: ${{ needs.meta.outputs.is_prerelease }}
+          IS_PRERELEASE: ${{ needs.validate-release.outputs.is_prerelease }}
           REF_NAME: ${{ github.ref_name }}
-          TAG: ${{ needs.meta.outputs.tag }}
+          TAG: ${{ needs.validate-release.outputs.tag }}
         run: |
           set -euo pipefail
           options=(--title "$TAG" --generate-notes)
