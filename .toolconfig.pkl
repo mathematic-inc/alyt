@@ -1,0 +1,41 @@
+amends
+  "package://github.com/mathematic-inc/toolconfig/releases/download/v2026.11.6/toolconfig@2026.11.6#/ToolConfig.pkl"
+
+root = true
+
+toolconfig {
+  `extends` =
+    List(new Repository {
+      git = "https://github.com/mathematic-inc/toolconfig-config.git"
+      rev = "fc76ddad46c14a7b7fe03bf117a92ede11ea0dfb"
+      path = "profiles/org/.toolconfig.pkl"
+    })
+}
+
+sections {
+  ["*"] {
+    // The plans hold code snippets with lines that cannot wrap, one of them a minified script.
+    rumdl {
+      ["per-file-ignores"] { ["docs/plans/*.md"] = List("MD013") }
+    }
+    oxlint {
+      rules {
+        ["typescript/prefer-readonly-parameter-types"] {
+          "deny"
+          new {
+            allow =
+              List(
+                // The rule does not see ReadonlyMap as readonly.
+                new Dynamic { from = "lib"; name = List("ReadonlyMap") },
+                // The rule does not see ReactNode as readonly.
+                new Dynamic { from = "package"; package = "@types/react"; name = List("ReactNode") },
+              )
+          }
+        }
+      }
+    }
+    typos {
+      ["default"] { ["extend-identifiers"] { ["OverridedMixpanel"] = "OverridedMixpanel" } }
+    }
+  }
+}

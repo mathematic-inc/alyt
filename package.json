@@ -17,16 +17,18 @@
   "scripts": {
     "audit": "pnpm audit --audit-level high",
     "build": "turbo run build",
-    "check": "oxlint --deny-warnings . && oxfmt --check .",
-    "fix": "oxlint --fix --deny-warnings . && oxfmt --write .",
-    "format": "oxfmt --write .",
-    "lint": "oxlint --deny-warnings .",
+    "check": "toolconfig generate --strict && oxlint --deny-warnings . && oxfmt --check .",
+    "fix": "toolconfig generate --strict && oxlint --fix --deny-warnings . && oxfmt --write .",
+    "format": "toolconfig generate --strict && oxfmt --write .",
+    "lint": "toolconfig generate --strict && oxlint --deny-warnings .",
     "prepare": "node -e \"const { spawnSync } = require('node:child_process'); const options = { shell: process.platform === 'win32', stdio: 'ignore' }; if (spawnSync('hk', ['--version'], options).status === 0) process.exit(spawnSync('hk', ['install'], { ...options, stdio: 'inherit' }).status ?? 1)\"",
     "test": "node --test tools/*.test.mjs && turbo run test",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "oxfmt": "^0.79.0",
+    "svelte": "^5.57.3",
     "turbo": "^2.11.10",
     "typescript": "^7.0.2",
     "vite": "^8.3.6"

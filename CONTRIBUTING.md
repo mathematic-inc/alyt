@@ -32,7 +32,11 @@ pnpm build
 pnpm typecheck
 pnpm test
 pnpm audit
+npm --prefix examples/nextjs ci --ignore-scripts
 hk check --all --slow
 ```
+
+The type-aware oxlint rules read the build output and the dependencies of
+`examples/nextjs`, so install and build first.
 
 [GitHub Discussion]: https://github.com/mathematic-inc/alyt/discussions/new
