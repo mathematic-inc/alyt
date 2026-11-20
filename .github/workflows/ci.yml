@@ -67,9 +67,9 @@ jobs:
         uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
       - name: Check and generate ToolConfig files
         uses: mathematic-inc/toolconfig-action@1baf7b021e8bf6f0e20737753c13af0fc93c8570 # v2026.11.0
-      # The type-aware oxlint rules read the packages that the build writes.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      # The type-aware oxlint rules read the packages that the build writes.
       - name: Build packages
         run: pnpm build
       - name: Install Next.js example dependencies
