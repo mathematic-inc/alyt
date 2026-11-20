@@ -11,7 +11,7 @@ describe("useAnalytics", () => {
     const client = createAnalytics();
 
     const { result } = renderHook(() => useAnalytics(), {
-      wrapper: ({ children }: { children: ReactNode }) => (
+      wrapper: ({ children }: { readonly children: ReactNode }) => (
         <AnalyticsProvider client={client}>{children}</AnalyticsProvider>
       ),
     });

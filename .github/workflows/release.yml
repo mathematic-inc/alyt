@@ -20,7 +20,6 @@ jobs:
     permissions:
       contents: read
     outputs:
-      version: ${{ steps.parse.outputs.version }}
       tag: ${{ steps.parse.outputs.tag }}
       is_prerelease: ${{ steps.parse.outputs.is_prerelease }}
       package_path: ${{ steps.parse.outputs.package_path }}
@@ -58,7 +57,6 @@ jobs:
 
           {
             echo "tag=$TAG"
-            echo "version=$VERSION"
             echo "package_path=$PACKAGE_PATH"
             echo "package_name=$PKG_NAME"
             if [[ "$VERSION" == *-* ]]; then
@@ -85,8 +83,12 @@ jobs:
           node-version-file: .node-version
           package-manager-cache: false
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter "${{ needs.meta.outputs.package_name }}..." run build
-      - run: pnpm --filter "${{ needs.meta.outputs.package_name }}..." run test
+      - run: pnpm --filter "${PACKAGE_NAME}..." run build
+        env:
+          PACKAGE_NAME: ${{ needs.meta.outputs.package_name }}
+      - run: pnpm --filter "${PACKAGE_NAME}..." run test
+        env:
+          PACKAGE_NAME: ${{ needs.meta.outputs.package_name }}
       - name: Upload build output
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -118,7 +120,9 @@ jobs:
         with:
           name: build-output
           path: ${{ needs.meta.outputs.package_path }}/build
-      - run: pnpm --filter "./${{ needs.meta.outputs.package_path }}" publish --access public --no-git-checks --provenance
+      - run: pnpm --filter "./${PACKAGE_PATH}" publish --access public --no-git-checks --provenance
+        env:
+          PACKAGE_PATH: ${{ needs.meta.outputs.package_path }}
 
   create-release:
     name: Create GitHub release
@@ -129,10 +133,21 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
-        with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: ${{ needs.meta.outputs.tag }}
-          generate_release_notes: true
-          prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
-          make_latest: ${{ needs.meta.outputs.is_prerelease == 'false' && startsWith(github.ref_name, 'v') }}
+      - name: Create release
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          IS_PRERELEASE: ${{ needs.meta.outputs.is_prerelease }}
+          REF_NAME: ${{ github.ref_name }}
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          options=(--title "$TAG" --generate-notes)
+          if [[ "$IS_PRERELEASE" == true ]]; then
+            options+=(--prerelease --latest=false)
+          elif [[ "$REF_NAME" == v* ]]; then
+            options+=(--latest)
+          else
+            options+=(--latest=false)
+          fi
+          gh release create "$TAG" "${options[@]}"

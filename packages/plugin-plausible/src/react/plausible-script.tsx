@@ -1,8 +1,8 @@
 import Script from "next/script";
 
 interface PlausibleScriptProps {
-  apiHost?: string;
-  domain: string;
+  readonly apiHost?: string;
+  readonly domain: string;
 }
 
 export function PlausibleScript({

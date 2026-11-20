@@ -1,8 +1,8 @@
 import type { AnalyticsPlugin } from "@alyt/core";
 
 export interface GoogleAnalyticsOptions {
-  client?: Gtag.Gtag;
-  measurementId: string;
+  readonly client?: Gtag.Gtag;
+  readonly measurementId: string;
 }
 
 export function googleAnalytics(options: GoogleAnalyticsOptions): AnalyticsPlugin {

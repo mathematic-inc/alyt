@@ -57,7 +57,9 @@ describe("amplitude", () => {
     vi.stubGlobal("window", {});
 
     const plugin = amplitude({ apiKey: "test-key" });
-    expect(() => plugin.track("event")).not.toThrow();
+    expect(() => {
+      plugin.track("event");
+    }).not.toThrow();
     expect(() => plugin.identify?.("user")).not.toThrow();
     expect(() => plugin.page?.("page")).not.toThrow();
     expect(() => plugin.reset?.()).not.toThrow();
@@ -72,7 +74,7 @@ describe("amplitude", () => {
       reset: vi.fn(),
     };
 
-    const plugin = amplitude({ apiKey: "test-key", client: client as never });
+    const plugin = amplitude({ apiKey: "test-key", client });
     plugin.track("test_event", { key: "value" });
     plugin.identify?.("user-123");
     plugin.reset?.();

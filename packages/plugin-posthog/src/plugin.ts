@@ -1,21 +1,28 @@
 import type { AnalyticsPlugin } from "@alyt/core";
 import type { PostHog } from "posthog-js";
 
+export interface PostHogClient {
+  readonly capture: PostHog["capture"];
+  readonly identify: PostHog["identify"];
+  readonly reset: PostHog["reset"];
+}
+
 export interface PostHogOptions {
-  apiHost?: string;
-  apiKey: string;
-  client?: PostHog;
+  readonly apiHost?: string;
+  readonly apiKey: string;
+  readonly client?: PostHogClient;
 }
 
 export function posthog(options: PostHogOptions): AnalyticsPlugin {
-  function getPostHog(): PostHog | null {
+  function getPostHog(): PostHogClient | null {
     if (options.client) {
       return options.client;
     }
-    if (typeof window !== "undefined" && "posthog" in window) {
-      return (window as Record<string, unknown>).posthog as PostHog;
+    if (typeof window === "undefined") {
+      return null;
     }
-    return null;
+    const { posthog: client }: Window & { posthog?: PostHogClient } = window;
+    return client ?? null;
   }
 
   return {

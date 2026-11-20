@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "noEmit": true,
+    "paths": {
+      "@alyt/core": ["../packages/core/src/index.ts"],
+      "@alyt/plugin-ga": ["../packages/plugin-ga/src/index.ts"],
+      "@alyt/plugin-posthog": ["../packages/plugin-posthog/src/index.ts"]
+    }
+  },
+  "include": ["basic", "custom-plugin"]
+}

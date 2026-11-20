@@ -1,13 +1,19 @@
 <script lang="ts">
   import type { AnalyticsClient, AnalyticsPlugin } from "@alyt/core";
-
   import { untrack } from "svelte";
 
   import AnalyticsProvider from "./analytics-provider.svelte";
   import Consumer from "./consumer.test.svelte";
   import { setAnalytics } from "./context.js";
 
-  let { client, nested, capture, plugin, consent = false, direct = false }: {
+  let {
+    client,
+    nested,
+    capture,
+    plugin,
+    consent = false,
+    direct = false,
+  }: {
     client: AnalyticsClient;
     nested?: AnalyticsClient;
     capture: (client: AnalyticsClient) => void;

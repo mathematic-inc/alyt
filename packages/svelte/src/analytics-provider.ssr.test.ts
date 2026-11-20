@@ -9,12 +9,15 @@ it("isolates SSR trees without browser globals, plugin effects, or automatic eve
   const track = vi.fn();
   const page = vi.fn();
   const clients: AnalyticsClient[] = [];
+  const captureClient = (value: AnalyticsClient) => {
+    clients.push(value);
+  };
   const first = createAnalytics();
   const second = createAnalytics();
   const plugin = { name: "browser-only", track, page };
   for (const client of [first, second]) {
     const result = render(ProviderTree, {
-      props: { client, plugin, consent: true, capture: (value) => clients.push(value) },
+      props: { client, plugin, consent: true, capture: captureClient },
     });
     expect(result.body).toContain("Track</button>");
     client.track("server");

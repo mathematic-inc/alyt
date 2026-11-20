@@ -1,3 +1,0 @@
-[per-file-ignores]
-"docs/plans/*.md" = ["MD013", "MD036"]
-"packages/*/CHANGELOG.md" = ["MD013"]

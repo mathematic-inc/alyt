@@ -1,5 +1,5 @@
 export async function sha256Hex(value: string): Promise<string> {
-  if (!globalThis.crypto?.subtle) {
+  if (globalThis.crypto?.subtle === undefined) {
     throw new Error("globalThis.crypto.subtle is required to hash analytics parameters");
   }
 

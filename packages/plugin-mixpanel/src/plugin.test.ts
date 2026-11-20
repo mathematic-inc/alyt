@@ -56,7 +56,9 @@ describe("mixpanel", () => {
     vi.stubGlobal("window", {});
 
     const plugin = mixpanel({ token: "test-token" });
-    expect(() => plugin.track("event")).not.toThrow();
+    expect(() => {
+      plugin.track("event");
+    }).not.toThrow();
     expect(() => plugin.identify?.("user")).not.toThrow();
     expect(() => plugin.page?.("page")).not.toThrow();
     expect(() => plugin.reset?.()).not.toThrow();
@@ -73,7 +75,7 @@ describe("mixpanel", () => {
       reset: vi.fn(),
     };
 
-    const plugin = mixpanel({ token: "test-token", client: client as never });
+    const plugin = mixpanel({ token: "test-token", client });
     plugin.track("test_event", { key: "value" });
     plugin.identify?.("user-123", { email: "a@b.com" });
     plugin.reset?.();
