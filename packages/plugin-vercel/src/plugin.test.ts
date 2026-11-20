@@ -23,6 +23,13 @@ describe("vercelAnalytics", () => {
     expect(vercelTrack).toHaveBeenCalledWith("test_event", { key: "value" });
   });
 
+  it("passes only the values that Vercel accepts", () => {
+    const plugin = vercelAnalytics();
+    plugin.track("test_event", { count: 2, nested: { key: "value" }, ok: true, text: "a" });
+
+    expect(vercelTrack).toHaveBeenCalledWith("test_event", { count: 2, ok: true, text: "a" });
+  });
+
   it("does not define identify", () => {
     const plugin = vercelAnalytics();
     expect(plugin.identify).toBeUndefined();

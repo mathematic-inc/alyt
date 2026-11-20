@@ -1,4 +1,4 @@
-import { createAnalytics, type AnalyticsClient } from "@alyt/core";
+import { createAnalytics, type AnalyticsClient, type AnalyticsPlugin } from "@alyt/core";
 import { flushSync, mount, unmount } from "svelte";
 import { fromStore, writable } from "svelte/store";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -21,10 +21,13 @@ describe("AnalyticsProvider", () => {
     const client = createAnalytics();
     const nested = createAnalytics();
     const clients: AnalyticsClient[] = [];
+    const captureClient = (value: AnalyticsClient) => {
+      clients.push(value);
+    };
     mounted.push(
       mount(ProviderTree, {
         target: document.body,
-        props: { client, nested, capture: (value) => clients.push(value) },
+        props: { client, nested, capture: captureClient },
       }),
     );
     flushSync();
@@ -34,8 +37,8 @@ describe("AnalyticsProvider", () => {
   });
 
   it("supports setAnalytics without a provider and existing generated trackers", () => {
-    const track = vi.fn();
-    const skipped = vi.fn();
+    const track = vi.fn<AnalyticsPlugin["track"]>();
+    const skipped = vi.fn<AnalyticsPlugin["track"]>();
     const client = createAnalytics({
       plugins: [
         { name: "selected", track },

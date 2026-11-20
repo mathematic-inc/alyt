@@ -5,8 +5,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
 
-import { generateTracker, generateTypes } from "./generate.js";
+import { generateTracker, generateTypes, isSchema } from "./generate.js";
 import type { Schema } from "./generate.js";
 
 const schema = {
@@ -38,6 +39,14 @@ const hashSchema = {
 
 const require = createRequire(import.meta.url);
 const tscPath = join(dirname(require.resolve("typescript/package.json")), "bin", "tsc");
+
+function parseSchema(source: string): Schema {
+  const value: unknown = parse(source);
+  if (!isSchema(value)) {
+    throw new Error("The test schema must define an events map");
+  }
+  return value;
+}
 
 function expectValidTypeScript(source: string): void {
   const directory = mkdtempSync(join(tmpdir(), "alyt-codegen-"));
@@ -170,15 +179,12 @@ describe("generateTracker", () => {
   });
 
   it("throws when hash metadata is used on non-string params", () => {
-    const invalidSchema = {
-      events: {
-        bad_event: {
-          params: {
-            count: { type: "number", hash: true },
-          },
-        },
-      },
-    } as unknown as Schema;
+    const invalidSchema = parseSchema(`
+events:
+  bad_event:
+    params:
+      count: { type: number, hash: true }
+`);
 
     expect(() => generateTracker(invalidSchema)).toThrow(
       'Param "count" on event "bad_event" uses hash: true, which is only supported for type "string"',
@@ -186,15 +192,12 @@ describe("generateTracker", () => {
   });
 
   it("throws when full-form params omit type", () => {
-    const invalidSchema = {
-      events: {
-        bad_event: {
-          params: {
-            email: { hash: true },
-          },
-        },
-      },
-    } as unknown as Schema;
+    const invalidSchema = parseSchema(`
+events:
+  bad_event:
+    params:
+      email: { hash: true }
+`);
 
     expect(() => generateTypes(invalidSchema)).toThrow(
       'Param "email" on event "bad_event" must define a string type field',
@@ -202,15 +205,12 @@ describe("generateTracker", () => {
   });
 
   it("throws when full-form params include unknown fields", () => {
-    const invalidSchema = {
-      events: {
-        bad_event: {
-          params: {
-            email: { type: "string", transform: "hash" },
-          },
-        },
-      },
-    } as unknown as Schema;
+    const invalidSchema = parseSchema(`
+events:
+  bad_event:
+    params:
+      email: { type: string, transform: hash }
+`);
 
     expect(() => generateTracker(invalidSchema)).toThrow(
       'Param "email" on event "bad_event" has unknown field(s): transform',

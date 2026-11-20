@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { PlausibleClient } from "./plugin.js";
 import { plausible } from "./plugin.js";
 
 describe("plausible", () => {
@@ -38,13 +39,15 @@ describe("plausible", () => {
     vi.stubGlobal("window", {});
 
     const plugin = plausible({ domain: "example.com" });
-    expect(() => plugin.track("event")).not.toThrow();
+    expect(() => {
+      plugin.track("event");
+    }).not.toThrow();
 
     vi.unstubAllGlobals();
   });
 
   it("uses provided client instead of window global", () => {
-    const client = vi.fn();
+    const client = vi.fn<PlausibleClient>();
 
     const plugin = plausible({ domain: "example.com", client });
     plugin.track("signup", { plan: "pro" });

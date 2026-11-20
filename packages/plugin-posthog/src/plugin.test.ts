@@ -51,7 +51,9 @@ describe("posthog", () => {
     vi.stubGlobal("window", {});
 
     const plugin = posthog({ apiKey: "phc_test" });
-    expect(() => plugin.track("event")).not.toThrow();
+    expect(() => {
+      plugin.track("event");
+    }).not.toThrow();
 
     vi.unstubAllGlobals();
   });
@@ -63,7 +65,7 @@ describe("posthog", () => {
       reset: vi.fn(),
     };
 
-    const plugin = posthog({ apiKey: "phc_test", client: client as never });
+    const plugin = posthog({ apiKey: "phc_test", client });
     plugin.track("test_event", { key: "value" });
     plugin.identify?.("user-123", { email: "a@b.com" });
     plugin.reset?.();

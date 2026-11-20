@@ -6,10 +6,10 @@ import type { AnalyticsPlugin } from "./types.js";
 function mockPlugin(name = "test"): AnalyticsPlugin {
   return {
     name,
-    track: vi.fn(),
-    identify: vi.fn(),
-    page: vi.fn(),
-    reset: vi.fn(),
+    track: vi.fn<AnalyticsPlugin["track"]>(),
+    identify: vi.fn<NonNullable<AnalyticsPlugin["identify"]>>(),
+    page: vi.fn<NonNullable<AnalyticsPlugin["page"]>>(),
+    reset: vi.fn<NonNullable<AnalyticsPlugin["reset"]>>(),
   };
 }
 
@@ -27,7 +27,7 @@ describe("createAnalytics", () => {
 
   it("fans out identify calls to plugins that support it", () => {
     const withIdentify = mockPlugin("with");
-    const without: AnalyticsPlugin = { name: "without", track: vi.fn() };
+    const without: AnalyticsPlugin = { name: "without", track: vi.fn<AnalyticsPlugin["track"]>() };
     const client = createAnalytics({ plugins: [withIdentify, without] });
 
     client.identify("user-123", { email: "a@b.com" });
@@ -88,6 +88,8 @@ describe("createAnalytics", () => {
 
   it("works with no plugins", () => {
     const client = createAnalytics();
-    expect(() => client.track("event")).not.toThrow();
+    expect(() => {
+      client.track("event");
+    }).not.toThrow();
   });
 });

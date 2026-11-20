@@ -41,17 +41,19 @@ describe("googleAnalytics", () => {
     vi.stubGlobal("window", {});
 
     const plugin = googleAnalytics({ measurementId: "G-TEST" });
-    expect(() => plugin.track("event")).not.toThrow();
+    expect(() => {
+      plugin.track("event");
+    }).not.toThrow();
 
     vi.unstubAllGlobals();
   });
 
   it("uses provided client instead of window global", () => {
-    const client = vi.fn();
+    const client = vi.fn<(...args: readonly unknown[]) => void>();
 
     const plugin = googleAnalytics({
       measurementId: "G-TEST",
-      client: client as never,
+      client,
     });
     plugin.track("test_event", { key: "value" });
     plugin.identify?.("user-123");
